@@ -12,13 +12,23 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class MainActivity extends AppCompatActivity {
 
 
+    public static final String TODOITEM="todoitem";
+    private static final int REQUEST_ID_TODO_ITEM=100;
+    public static final String DATE_TIME_FORMAT_12_HOUR="MMM d, yyyy h:mm a";
+    public static final String DATE_TIME_FORMAT_24_HOUR="MMM d, yyyy k:mm";
+
     public static final String SHARED_PREF_DATA_SET_CHANGED="shared_pref_data_set_changed";
     public static final String CHANGE_OCCURED="change_occured";
     public static final String FILENAME ="todoitems.json" ;
+
+    public static final String RECREATE_ACTIVITY="recreate_activity";
 
 
     private String theme="name_of_the_theme";
@@ -29,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private int mTheme=-1;
     private StoreRetrieveData storeRetrieveData;
     private ArrayList<TodoItem> mToDoItemsArrayList;
+    private BasicListAdapter adapter;
 
 
     public static ArrayList<TodoItem> getLocallyStoredData(StoreRetrieveData storeRetrieveData){
@@ -45,6 +56,18 @@ public class MainActivity extends AppCompatActivity {
             items=new ArrayList<>();
         }
         return items;
+    }
+
+    private void setAlarms(){
+        if(mToDoItemsArrayList!=null){
+            for (TodoItem item : mToDoItemsArrayList) {
+                if(item.ismHasReminder()&&item.getmToDoDate().before(new Date())){
+                    item.setmToDoDate(null);
+                    continue;
+                }
+                // TODO: 2017/5/3 start TodoNotificationService.class
+            }
+        }
     }
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,5 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
         storeRetrieveData=new StoreRetrieveData(this,FILENAME);
         mToDoItemsArrayList=getLocallyStoredData(storeRetrieveData);
+        adapter=new BasicListAdapter(MainActivity.this,mToDoItemsArrayList);
+        setAlarms();
     }
 }
