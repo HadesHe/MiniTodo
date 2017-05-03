@@ -8,6 +8,9 @@ import com.example.hades.minitodo.R;
 import com.example.hades.minitodo.beans.TodoItem;
 import com.example.hades.minitodo.data.StoreRetrieveData;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -25,11 +28,25 @@ public class MainActivity extends AppCompatActivity {
     public static final String LIGHTTHEME="lighttheme";
     private int mTheme=-1;
     private StoreRetrieveData storeRetrieveData;
+    private ArrayList<TodoItem> mToDoItemsArrayList;
 
 
-    public static ArrayList<TodoItem>
+    public static ArrayList<TodoItem> getLocallyStoredData(StoreRetrieveData storeRetrieveData){
+        ArrayList<TodoItem> items=null;
+        try {
+            items=storeRetrieveData.loadFromFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-    @Override
+        if(items==null){
+            items=new ArrayList<>();
+        }
+        return items;
+    }
+
     protected void onCreate(Bundle savedInstanceState) {
 
         theme=getSharedPreferences(THEME_PREFERENCES,MODE_PRIVATE).getString(THEME_SAVED,LIGHTTHEME);
@@ -50,6 +67,6 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
 
         storeRetrieveData=new StoreRetrieveData(this,FILENAME);
-        mToDoItemsArrayList=getLocalStoredData(storeRetrieveData);
+        mToDoItemsArrayList=getLocallyStoredData(storeRetrieveData);
     }
 }
