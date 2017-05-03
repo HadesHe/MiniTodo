@@ -21,14 +21,14 @@
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorSwitchThumbNormal">@color/grey300</item>
-        <item name="colorForeground">@color/grey600</item>
+        <item name="android:colorForeground">@color/grey600</item>
     </style>
 
     <style name="ToolBarTheme" parent="Base.Widget.AppCompat.Toolbar">
         <item name="titleTextAppearance">@style/ToolbarTitleTextAppearanceLight</item>
     </style>
     <style name="ToolbarTitleTextAppearanceLight" parent="Base.TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="textColor">@android:color/white</item>
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
     <style name="OverflowThreeDotsWhite" parent="Widget.AppCompat.Light.ActionButton.Overflow">
