@@ -8,7 +8,10 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
 import com.example.hades.minitodo.R;
 import com.example.hades.minitodo.beans.TodoItem;
@@ -52,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton mAddTodoItemFAB;
     private RecyclerViewEmptySupport mRecyclerView;
     private CustomRecyclerScrollViewListener customRecyclerScrollViewListener;
+    private ItemTouchHelper itemTouchHelper;
 
 
     public static ArrayList<TodoItem> getLocallyStoredData(StoreRetrieveData storeRetrieveData){
@@ -135,13 +139,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void hide() {
 
+                CoordinatorLayout.LayoutParams lp= (CoordinatorLayout.LayoutParams) mAddTodoItemFAB.getLayoutParams();
+                int fabMargin=lp.bottomMargin;
+                mAddTodoItemFAB.animate().translationY(mAddTodoItemFAB.getHeight()+fabMargin).setInterpolator(new AccelerateInterpolator(2.0f)).start();
+
             }
 
             @Override
             public void show() {
+                mAddTodoItemFAB.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
 
             }
         };
         mRecyclerView.addOnScrollListener(customRecyclerScrollViewListener);
+
+        ItemTouchHelper.Callback callback=new ItemTouchHelperClass(adapter);
+        itemTouchHelper =new ItemTouchHelper(callback);
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
+        mRecyclerView.setAdapter(adapter);
     }
 }

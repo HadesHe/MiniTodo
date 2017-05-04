@@ -20,6 +20,7 @@ import com.example.hades.minitodo.utils.DateUtil;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.example.hades.minitodo.mainmodule.MainActivity.DATE_TIME_FORMAT_12_HOUR;
@@ -31,7 +32,7 @@ import static com.example.hades.minitodo.mainmodule.MainActivity.THEME_SAVED;
 /**
  * Created by Hades on 2017/5/3.
  */
-public class BasicListAdapter extends RecyclerView.Adapter<BasicListAdapter.ViewHolder>{
+public class BasicListAdapter extends RecyclerView.Adapter<BasicListAdapter.ViewHolder> implements ItemTouchHelperClass.ItemTouchHelperAdapter {
     private  Context mContext;
     private ArrayList<TodoItem> mItems;
 
@@ -94,6 +95,28 @@ public class BasicListAdapter extends RecyclerView.Adapter<BasicListAdapter.View
     @Override
     public int getItemCount() {
         return mItems.size();
+    }
+
+    @Override
+    public void onItemMoved(int fromPosition, int toPosition) {
+        if(fromPosition<toPosition){
+            for(int i=fromPosition;i<toPosition;i++){
+                Collections.swap(mItems,i,i+1);
+            }
+        }else {
+            for (int i=fromPosition;i>toPosition;i--){
+                Collections.swap(mItems,i,i-1);
+            }
+        }
+        notifyItemMoved(fromPosition,toPosition);
+    }
+
+    @Override
+    public void onItemRemoved(int position) {
+        TodoItem mJustDeletedTodoItem = mItems.remove(position);
+        int mIndexOfDeletedTodoItem=position;
+        //todo intent to TodoNotificationService.class
+
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
