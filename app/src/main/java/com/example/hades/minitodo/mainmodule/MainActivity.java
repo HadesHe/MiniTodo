@@ -1,12 +1,20 @@
 package com.example.hades.minitodo.mainmodule;
 
 import android.content.SharedPreferences;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
 
 import com.example.hades.minitodo.R;
 import com.example.hades.minitodo.beans.TodoItem;
 import com.example.hades.minitodo.data.StoreRetrieveData;
+import com.example.hades.minitodo.view.CustomRecyclerScrollViewListener;
+import com.example.hades.minitodo.view.RecyclerViewEmptySupport;
 
 import org.json.JSONException;
 
@@ -40,6 +48,10 @@ public class MainActivity extends AppCompatActivity {
     private StoreRetrieveData storeRetrieveData;
     private ArrayList<TodoItem> mToDoItemsArrayList;
     private BasicListAdapter adapter;
+    private CoordinatorLayout mCoordLayout;
+    private FloatingActionButton mAddTodoItemFAB;
+    private RecyclerViewEmptySupport mRecyclerView;
+    private CustomRecyclerScrollViewListener customRecyclerScrollViewListener;
 
 
     public static ArrayList<TodoItem> getLocallyStoredData(StoreRetrieveData storeRetrieveData){
@@ -93,5 +105,43 @@ public class MainActivity extends AppCompatActivity {
         mToDoItemsArrayList=getLocallyStoredData(storeRetrieveData);
         adapter=new BasicListAdapter(MainActivity.this,mToDoItemsArrayList);
         setAlarms();
+
+        final Toolbar toolbar= (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        mCoordLayout=(CoordinatorLayout)findViewById(R.id.myCoordinatorLayout);
+        mAddTodoItemFAB=(FloatingActionButton)findViewById(R.id.addToDoItemFab);
+
+        mAddTodoItemFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO: 2017/5/4 start AddToDoActivity.class
+            }
+        });
+
+        mRecyclerView=(RecyclerViewEmptySupport)findViewById(R.id.todoRecyclerView);
+
+        if(theme.equals(LIGHTTHEME)){
+            mRecyclerView.setBackgroundColor(getResources().getColor(R.color.primary_lightest));
+        }
+
+        mRecyclerView.setEmptyView(findViewById(R.id.todoEmptyView));
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        customRecyclerScrollViewListener=new CustomRecyclerScrollViewListener(){
+
+            @Override
+            public void hide() {
+
+            }
+
+            @Override
+            public void show() {
+
+            }
+        };
+        mRecyclerView.addOnScrollListener(customRecyclerScrollViewListener);
     }
 }

@@ -44,9 +44,23 @@
             >
             <include layout="@layout/base_toolbar"/>
         </android.support.design.widget.AppBarLayout>
+
+        <com.example.hades.minitodo.view.RecyclerViewEmptySupport
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/todoRecyclerView"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            ></com.example.hades.minitodo.view.RecyclerViewEmptySupport>
+        <android.support.design.widget.FloatingActionButton
+            android:src="@drawable/ic_add_white_24dp"
+            android:id="@+id/addToDoItemFab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:layout_anchor="@id/myCoordinatorLayout"
+            app:layout_anchorGravity="bottom|right|end"
+            app:layout_behavior="ScrollingFABBehaviour"
+            />
+
     </android.support.design.widget.CoordinatorLayout>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
 </LinearLayout>
