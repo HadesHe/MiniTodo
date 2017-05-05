@@ -7,13 +7,16 @@ import com.example.hades.minitodo.mainmodule.MainActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 /**
@@ -59,5 +62,24 @@ public class StoreRetrieveData {
             }
         }
         return items;
+    }
+
+    public void saveToFile(ArrayList<TodoItem> mTodoItems) throws IOException, JSONException {
+        FileOutputStream fileOutputStream;
+        OutputStreamWriter outputStreamWriter;
+        fileOutputStream=mContext.openFileOutput(mFileName,Context.MODE_PRIVATE);
+        outputStreamWriter=new OutputStreamWriter(fileOutputStream);
+        outputStreamWriter.write(toJSONArray(mTodoItems).toString());
+        outputStreamWriter.close();
+        fileOutputStream.close();
+    }
+
+    private JSONArray toJSONArray(ArrayList<TodoItem> items) throws JSONException {
+        JSONArray jsonArray=new JSONArray();
+        for (TodoItem item : items) {
+            JSONObject jsonObject=item.toJSON();
+            jsonArray.put(jsonObject);
+        }
+        return jsonArray;
     }
 }

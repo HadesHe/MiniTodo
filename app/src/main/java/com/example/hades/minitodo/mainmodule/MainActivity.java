@@ -1,6 +1,10 @@
 package com.example.hades.minitodo.mainmodule;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.provider.AlarmClock;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +13,8 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -16,6 +22,8 @@ import android.view.animation.DecelerateInterpolator;
 import com.example.hades.minitodo.R;
 import com.example.hades.minitodo.beans.TodoItem;
 import com.example.hades.minitodo.data.StoreRetrieveData;
+import com.example.hades.minitodo.reminder.ReminderActivity;
+import com.example.hades.minitodo.services.TodoNotificationService;
 import com.example.hades.minitodo.view.CustomRecyclerScrollViewListener;
 import com.example.hades.minitodo.view.RecyclerViewEmptySupport;
 
@@ -81,9 +89,23 @@ public class MainActivity extends AppCompatActivity {
                     item.setmToDoDate(null);
                     continue;
                 }
-                // TODO: 2017/5/3 start TodoNotificationService.class
+                Intent i=new Intent(this,TodoNotificationService.class);
+                i.putExtra(TodoNotificationService.TODOUUID,item.getmTodoIdentifier());
+                i.putExtra(TodoNotificationService.TODOTEXT,item.getmToDoText());
+                createAlarm(i,item.getmTodoIdentifier().hashCode(),item.getmToDoDate().getTime());
+
             }
         }
+    }
+
+    private void createAlarm(Intent i, int requestCode, long timeInMillis) {
+        AlarmManager am=getAlarmManager();
+        PendingIntent pi=PendingIntent.getService(this,requestCode,i,PendingIntent.FLAG_UPDATE_CURRENT);
+        am.set(AlarmManager.RTC_WAKEUP,timeInMillis,pi);
+    }
+
+    private AlarmManager getAlarmManager() {
+        return (AlarmManager) getSystemService(ALARM_SERVICE);
     }
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,5 +179,60 @@ public class MainActivity extends AppCompatActivity {
         itemTouchHelper =new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
         mRecyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences sharedPreferences=getSharedPreferences(SHARED_PREF_DATA_SET_CHANGED,MODE_PRIVATE);
+        if(sharedPreferences.getBoolean(ReminderActivity.EXIT,false)){
+            SharedPreferences.Editor editor=sharedPreferences.edit();
+            editor.putBoolean(ReminderActivity.EXIT,false);
+            editor.apply();
+            finish();
+        }
+
+        if(getSharedPreferences(THEME_PREFERENCES,MODE_PRIVATE).getBoolean(RECREATE_ACTIVITY,false)){
+            SharedPreferences.Editor editor=getSharedPreferences(THEME_PREFERENCES,MODE_PRIVATE).edit();
+            editor.putBoolean(RECREATE_ACTIVITY,false);
+            editor.apply();
+            recreate();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        SharedPreferences sharedPreferences=getSharedPreferences(SHARED_PREF_DATA_SET_CHANGED,MODE_PRIVATE);
+        if(sharedPreferences.getBoolean(CHANGE_OCCURED,false)){
+            mToDoItemsArrayList=getLocallyStoredData(storeRetrieveData);
+            adapter=new BasicListAdapter(MainActivity.this,mToDoItemsArrayList);
+            mRecyclerView.setAdapter(adapter);
+            setAlarms();
+
+            SharedPreferences.Editor editor=sharedPreferences.edit();
+            editor.putBoolean(CHANGE_OCCURED,false);
+            editor.apply();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.aboutMeMenuItem:
+                // TODO: 2017/5/5 intent to AboutActivity
+                return true;
+            case R.id.preferences:
+                // TODO: 2017/5/5 intent to SettingActivity.class
+                return true;
+            default:
+            return super.onOptionsItemSelected(item);
+        }
     }
 }
