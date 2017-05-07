@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="reminder_date_and_time" >设置提醒时间为%1$s, %2$s,%3$s</string>
+</resources>

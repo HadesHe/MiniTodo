@@ -19,7 +19,9 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.example.hades.minitodo.R;
+import com.example.hades.minitodo.addtodomodule.AddTodoActivity;
 import com.example.hades.minitodo.beans.TodoItem;
 import com.example.hades.minitodo.data.StoreRetrieveData;
 import com.example.hades.minitodo.reminder.ReminderActivity;
@@ -141,7 +143,12 @@ public class MainActivity extends AppCompatActivity {
         mAddTodoItemFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: 2017/5/4 start AddToDoActivity.class
+                Intent newTodo=new Intent(MainActivity.this,AddTodoActivity.class);
+                TodoItem item = new TodoItem("",false,null);
+                int color= ColorGenerator.MATERIAL.getRandomColor();
+                item.setmTodoColor(color);
+                newTodo.putExtra(TODOITEM,item);
+                startActivityForResult(newTodo,REQUEST_ID_TODO_ITEM);
             }
         });
 
