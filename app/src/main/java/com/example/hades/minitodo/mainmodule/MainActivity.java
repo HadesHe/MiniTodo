@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mCoordLayout=(CoordinatorLayout)findViewById(R.id.myCoordinatorLayout);
-        mAddTodoItemFAB=(FloatingActionButton)findViewById(R.id.addToDoItemFab);
+        mAddTodoItemFAB=(FloatingActionButton)findViewById(R.id.addToDoItemFAB);
 
         mAddTodoItemFAB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,13 +152,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mRecyclerView=(RecyclerViewEmptySupport)findViewById(R.id.todoRecyclerView);
+        mRecyclerView=(RecyclerViewEmptySupport)findViewById(R.id.toDoRecyclerView);
 
         if(theme.equals(LIGHTTHEME)){
             mRecyclerView.setBackgroundColor(getResources().getColor(R.color.primary_lightest));
         }
 
-        mRecyclerView.setEmptyView(findViewById(R.id.todoEmptyView));
+        mRecyclerView.setEmptyView(findViewById(R.id.toDoEmptyView));
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -205,6 +205,43 @@ public class MainActivity extends AppCompatActivity {
             editor.apply();
             recreate();
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode!=RESULT_CANCELED&&requestCode==REQUEST_ID_TODO_ITEM){
+            TodoItem item= (TodoItem) data.getSerializableExtra(TODOITEM);
+            if(item.getmToDoText().length()<=0){
+                return;
+            }
+
+            boolean existed=false;
+
+            if(item.ismHasReminder()&&item.getmToDoDate()!=null){
+                Intent i=new Intent(this,TodoNotificationService.class);
+                i.putExtra(TodoNotificationService.TODOTEXT,item.getmToDoText());
+                i.putExtra(TodoNotificationService.TODOUUID,item.getmTodoIdentifier());
+                createAlarm(i,item.getmTodoIdentifier().hashCode(),item.getmToDoDate().getTime());
+            }
+
+            for (int i = 0; i < mToDoItemsArrayList.size(); i++) {
+                if(item.getmTodoIdentifier().equals(mToDoItemsArrayList.get(i).getmTodoIdentifier())){
+                    mToDoItemsArrayList.set(i,item);
+                    existed=true;
+                    adapter.notifyDataSetChanged();
+                    break;
+                }
+            }
+
+            if(!existed){
+                addToDataStore(item);
+            }
+        }
+    }
+
+    private void addToDataStore(TodoItem item) {
+        mToDoItemsArrayList.add(item);
+        adapter.notifyItemInserted(mToDoItemsArrayList.size()-1);
     }
 
     @Override
