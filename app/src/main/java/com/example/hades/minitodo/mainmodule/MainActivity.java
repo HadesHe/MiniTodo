@@ -4,9 +4,11 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Paint;
 import android.provider.AlarmClock;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -21,6 +23,7 @@ import android.view.animation.DecelerateInterpolator;
 
 import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.example.hades.minitodo.R;
+import com.example.hades.minitodo.aboutmodule.AboutActivity;
 import com.example.hades.minitodo.addtodomodule.AddTodoActivity;
 import com.example.hades.minitodo.beans.TodoItem;
 import com.example.hades.minitodo.data.StoreRetrieveData;
@@ -67,6 +70,20 @@ public class MainActivity extends AppCompatActivity {
     private CustomRecyclerScrollViewListener customRecyclerScrollViewListener;
     private ItemTouchHelper itemTouchHelper;
 
+    private BasicListAdapter.BasicListAdapterListener deleteListener=new BasicListAdapter.BasicListAdapterListener() {
+        @Override
+        public void onRemoveItemListener(final int justDeletePosition, final TodoItem todoItem) {
+            Snackbar.make(mCoordLayout,"Delete Todo",Snackbar.LENGTH_SHORT)
+                    .setAction("UNDO", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            adapter.onRemove(justDeletePosition,todoItem);
+                        }
+                    }).show();
+
+        }
+    };
+
 
     public static ArrayList<TodoItem> getLocallyStoredData(StoreRetrieveData storeRetrieveData){
         ArrayList<TodoItem> items=null;
@@ -100,10 +117,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void createAlarm(Intent i, int requestCode, long timeInMillis) {
+    public void createAlarm(Intent i, int requestCode, long timeInMillis) {
         AlarmManager am=getAlarmManager();
         PendingIntent pi=PendingIntent.getService(this,requestCode,i,PendingIntent.FLAG_UPDATE_CURRENT);
         am.set(AlarmManager.RTC_WAKEUP,timeInMillis,pi);
+    }
+
+    public void deleteAlarm(Intent intent, int requestCode){
+        if(doesPendingIntentExist(intent, requestCode)) {
+            PendingIntent pendingIntent = PendingIntent.getService(this,requestCode,intent, PendingIntent.FLAG_NO_CREATE);
+            pendingIntent.cancel();
+            getAlarmManager().cancel(pendingIntent);
+        }
+    }
+
+    private boolean doesPendingIntentExist(Intent intent, int requestCode) {
+        PendingIntent pi=PendingIntent.getService(this,requestCode,intent,PendingIntent.FLAG_NO_CREATE);
+        return pi!=null;
     }
 
     private AlarmManager getAlarmManager() {
@@ -131,34 +161,33 @@ public class MainActivity extends AppCompatActivity {
 
         storeRetrieveData=new StoreRetrieveData(this,FILENAME);
         mToDoItemsArrayList=getLocallyStoredData(storeRetrieveData);
-        adapter=new BasicListAdapter(MainActivity.this,mToDoItemsArrayList);
+        adapter=new BasicListAdapter(MainActivity.this,mToDoItemsArrayList,deleteListener);
         setAlarms();
 
         final Toolbar toolbar= (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         mCoordLayout=(CoordinatorLayout)findViewById(R.id.myCoordinatorLayout);
-        mAddTodoItemFAB=(FloatingActionButton)findViewById(R.id.addToDoItemFab);
+        mAddTodoItemFAB=(FloatingActionButton)findViewById(R.id.addToDoItemFAB);
 
         mAddTodoItemFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent newTodo=new Intent(MainActivity.this,AddTodoActivity.class);
                 TodoItem item = new TodoItem("",false,null);
                 int color= ColorGenerator.MATERIAL.getRandomColor();
                 item.setmTodoColor(color);
-                newTodo.putExtra(TODOITEM,item);
-                startActivityForResult(newTodo,REQUEST_ID_TODO_ITEM);
+                startAddTodoActivity(item);
+
             }
         });
 
-        mRecyclerView=(RecyclerViewEmptySupport)findViewById(R.id.todoRecyclerView);
+        mRecyclerView=(RecyclerViewEmptySupport)findViewById(R.id.toDoRecyclerView);
 
         if(theme.equals(LIGHTTHEME)){
             mRecyclerView.setBackgroundColor(getResources().getColor(R.color.primary_lightest));
         }
 
-        mRecyclerView.setEmptyView(findViewById(R.id.todoEmptyView));
+        mRecyclerView.setEmptyView(findViewById(R.id.toDoEmptyView));
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -188,6 +217,12 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(adapter);
     }
 
+    public void startAddTodoActivity(TodoItem item) {
+        Intent newTodo=new Intent(MainActivity.this,AddTodoActivity.class);
+        newTodo.putExtra(TODOITEM,item);
+        startActivityForResult(newTodo,REQUEST_ID_TODO_ITEM);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -208,12 +243,49 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode!=RESULT_CANCELED&&requestCode==REQUEST_ID_TODO_ITEM){
+            TodoItem item= (TodoItem) data.getSerializableExtra(TODOITEM);
+            if(item.getmToDoText().length()<=0){
+                return;
+            }
+
+            boolean existed=false;
+
+            if(item.ismHasReminder()&&item.getmToDoDate()!=null){
+                Intent i=new Intent(this,TodoNotificationService.class);
+                i.putExtra(TodoNotificationService.TODOTEXT,item.getmToDoText());
+                i.putExtra(TodoNotificationService.TODOUUID,item.getmTodoIdentifier());
+                createAlarm(i,item.getmTodoIdentifier().hashCode(),item.getmToDoDate().getTime());
+            }
+
+            for (int i = 0; i < mToDoItemsArrayList.size(); i++) {
+                if(item.getmTodoIdentifier().equals(mToDoItemsArrayList.get(i).getmTodoIdentifier())){
+                    mToDoItemsArrayList.set(i,item);
+                    existed=true;
+                    adapter.notifyDataSetChanged();
+                    break;
+                }
+            }
+
+            if(!existed){
+                addToDataStore(item);
+            }
+        }
+    }
+
+    private void addToDataStore(TodoItem item) {
+        mToDoItemsArrayList.add(item);
+        adapter.notifyItemInserted(mToDoItemsArrayList.size()-1);
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         SharedPreferences sharedPreferences=getSharedPreferences(SHARED_PREF_DATA_SET_CHANGED,MODE_PRIVATE);
         if(sharedPreferences.getBoolean(CHANGE_OCCURED,false)){
             mToDoItemsArrayList=getLocallyStoredData(storeRetrieveData);
-            adapter=new BasicListAdapter(MainActivity.this,mToDoItemsArrayList);
+            adapter=new BasicListAdapter(MainActivity.this,mToDoItemsArrayList,deleteListener);
             mRecyclerView.setAdapter(adapter);
             setAlarms();
 
@@ -233,7 +305,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.aboutMeMenuItem:
-                // TODO: 2017/5/5 intent to AboutActivity
+                Intent i=new Intent(this,AboutActivity.class);
+                startActivity(i);
                 return true;
             case R.id.preferences:
                 // TODO: 2017/5/5 intent to SettingActivity.class

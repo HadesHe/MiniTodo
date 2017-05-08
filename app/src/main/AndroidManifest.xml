@@ -27,7 +27,8 @@
             android:name=".services.DeleteNotificationService"
             android:exported="false" />
 
-        <activity android:name=".addtodomodule.AddTodoActivity"></activity>
+        <activity android:name=".addtodomodule.AddTodoActivity" />
+        <activity android:name=".aboutmodule.AboutActivity"></activity>
     </application>
 
 </manifest>
