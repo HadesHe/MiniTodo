@@ -14,6 +14,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -59,53 +60,20 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerDial
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        theme=getSharedPreferences(MainActivity.THEME_PREFERENCES,MODE_PRIVATE).getString(MainActivity.THEME_SAVED,MainActivity.LIGHTTHEME);
-        if(theme.equals(MainActivity.LIGHTTHEME)){
-            setTheme(R.style.CustomStyle_LightTheme);
-            Log.d(TAG,"Light theme");
-        }else{
-            setTheme(R.style.CustomStyle_DarkTheme);
-        }
-
+        initTheme();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_todo);
+        initView();
+        processExtra();
+        initData();
 
-        final Drawable cross=getResources().getDrawable(R.drawable.ic_clear_white_24dp);
-        if(cross!=null){
-            cross.setColorFilter(getResources().getColor(R.color.icons), PorterDuff.Mode.SRC_ATOP);
-        }
+    }
 
-        mToolbar=(Toolbar)findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
-
-        if(getSupportActionBar()!=null){
-            getSupportActionBar().setElevation(0);
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(cross);
-        }
-
-        mUserTodoItem=(TodoItem)getIntent().getSerializableExtra(MainActivity.TODOITEM);
-
-        mUserEnteredText=mUserTodoItem.getmToDoText();
-        mUserHasReminder=mUserTodoItem.ismHasReminder();
-        mUserReminderDate=mUserTodoItem.getmToDoDate();
-        mUserColor=mUserTodoItem.getmTodoColor();
-
-        reminderIconImageButton=(ImageView)findViewById(R.id.userTodoReminderIconImageButton);
-        reminderReminderMeTextView=(TextView)findViewById(R.id.userTodoRemindMeTextView);
+    private void initData() {
         if (theme.equals(MainActivity.DARKTHEME)) {
             reminderIconImageButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_alarm_add_white_24dp));
             reminderReminderMeTextView.setTextColor(Color.WHITE);
         }
-
-        mContainerLayout=(LinearLayout)findViewById(R.id.todoReminderAndDateContainerLayout);
-        mUserDateSpinnerContainingLinearLayout=(LinearLayout)findViewById(R.id.todoEnterDateLinearLayout);
-        mTodoTextBodyEditText=(EditText)findViewById(R.id.userTodoEditText);
-        mTodoDateSwitch=(SwitchCompat)findViewById(R.id.todoHasDateSwitchCompat);
-        mTodoSendFloatingActionButton=(FloatingActionButton)findViewById(R.id.makeTodoFloatingActionButton);
-        mReminderTextView=(TextView)findViewById(R.id.newTodoTimeReminderTextView);
-
         mContainerLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -233,8 +201,70 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerDial
         });
 
         setDateAndTimeEditText();
+
     }
 
+    private void processExtra() {
+        mUserTodoItem=(TodoItem)getIntent().getSerializableExtra(MainActivity.TODOITEM);
+        mUserEnteredText=mUserTodoItem.getmToDoText();
+        mUserHasReminder=mUserTodoItem.ismHasReminder();
+        mUserReminderDate=mUserTodoItem.getmToDoDate();
+        mUserColor=mUserTodoItem.getmTodoColor();
+    }
+
+
+
+    private void initView() {
+        initToolBar();
+        reminderIconImageButton=(ImageView)findViewById(R.id.userTodoReminderIconImageButton);
+        reminderReminderMeTextView=(TextView)findViewById(R.id.userTodoRemindMeTextView);
+
+        mContainerLayout=(LinearLayout)findViewById(R.id.todoReminderAndDateContainerLayout);
+        mUserDateSpinnerContainingLinearLayout=(LinearLayout)findViewById(R.id.todoEnterDateLinearLayout);
+        mTodoTextBodyEditText=(EditText)findViewById(R.id.userTodoEditText);
+        mTodoDateSwitch=(SwitchCompat)findViewById(R.id.todoHasDateSwitchCompat);
+        mTodoSendFloatingActionButton=(FloatingActionButton)findViewById(R.id.makeTodoFloatingActionButton);
+        mReminderTextView=(TextView)findViewById(R.id.newTodoTimeReminderTextView);
+
+    }
+
+    private void initToolBar() {
+        final Drawable cross=getResources().getDrawable(R.drawable.ic_clear_white_24dp);
+        if(cross!=null){
+            cross.setColorFilter(getResources().getColor(R.color.icons), PorterDuff.Mode.SRC_ATOP);
+        }
+
+        mToolbar=(Toolbar)findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+
+        if(getSupportActionBar()!=null){
+            getSupportActionBar().setElevation(0);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(cross);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void initTheme() {
+        theme=getSharedPreferences(MainActivity.THEME_PREFERENCES,MODE_PRIVATE).getString(MainActivity.THEME_SAVED,MainActivity.LIGHTTHEME);
+        if(theme.equals(MainActivity.LIGHTTHEME)){
+            setTheme(R.style.CustomStyle_LightTheme);
+            Log.d(TAG,"Light theme");
+        }else{
+            setTheme(R.style.CustomStyle_DarkTheme);
+        }
+    }
 
 
     private void setDateAndTimeEditText(){
