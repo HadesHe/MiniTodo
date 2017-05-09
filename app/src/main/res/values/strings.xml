@@ -26,5 +26,6 @@
 
     <string name="snooze">Snooze</string>
     <string name="remove">Remove</string>
-    <string name="email_address">avisekhon2@gmail.com</string>
+    <string name="email_address" translatable="false">avisekhon2@gmail.com</string>
+    <string name="night_mode_pref_key" translatable="false">NightModePreference</string>
 </resources>

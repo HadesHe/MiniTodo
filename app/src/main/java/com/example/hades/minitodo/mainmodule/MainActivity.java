@@ -29,6 +29,7 @@ import com.example.hades.minitodo.beans.TodoItem;
 import com.example.hades.minitodo.data.StoreRetrieveData;
 import com.example.hades.minitodo.reminder.ReminderActivity;
 import com.example.hades.minitodo.services.TodoNotificationService;
+import com.example.hades.minitodo.settingmodule.SettingActivity;
 import com.example.hades.minitodo.view.CustomRecyclerScrollViewListener;
 import com.example.hades.minitodo.view.RecyclerViewEmptySupport;
 
@@ -309,7 +310,9 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
                 return true;
             case R.id.preferences:
-                // TODO: 2017/5/5 intent to SettingActivity.class
+
+                Intent intent=new Intent(this,SettingActivity.class);
+                startActivity(intent);
                 return true;
             default:
             return super.onOptionsItemSelected(item);

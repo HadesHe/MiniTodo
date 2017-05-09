@@ -28,7 +28,8 @@
             android:exported="false" />
 
         <activity android:name=".addtodomodule.AddTodoActivity" />
-        <activity android:name=".aboutmodule.AboutActivity"></activity>
+        <activity android:name=".aboutmodule.AboutActivity" />
+        <activity android:name=".settingmodule.SettingActivity"></activity>
     </application>
 
 </manifest>
