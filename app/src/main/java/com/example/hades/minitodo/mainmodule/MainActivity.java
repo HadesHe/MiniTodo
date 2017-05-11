@@ -4,8 +4,6 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Paint;
-import android.provider.AlarmClock;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -38,8 +36,6 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-
-import static android.content.Context.MODE_PRIVATE;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -105,14 +101,14 @@ public class MainActivity extends AppCompatActivity {
     private void setAlarms(){
         if(mToDoItemsArrayList!=null){
             for (TodoItem item : mToDoItemsArrayList) {
-                if(item.ismHasReminder()&&item.getmToDoDate().before(new Date())){
-                    item.setmToDoDate(null);
+                if(item.getHasReminder()&&item.getToDoDate().before(new Date())){
+                    item.setToDoDate(null);
                     continue;
                 }
                 Intent i=new Intent(this,TodoNotificationService.class);
-                i.putExtra(TodoNotificationService.TODOUUID,item.getmTodoIdentifier());
-                i.putExtra(TodoNotificationService.TODOTEXT,item.getmToDoText());
-                createAlarm(i,item.getmTodoIdentifier().hashCode(),item.getmToDoDate().getTime());
+                i.putExtra(TodoNotificationService.TODOUUID,item.getTodoIdentifier());
+                i.putExtra(TodoNotificationService.TODOTEXT,item.getToDoText());
+                createAlarm(i,item.getTodoIdentifier().hashCode(),item.getToDoDate().getTime());
 
             }
         }
@@ -176,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 TodoItem item = new TodoItem("",false,null);
                 int color= ColorGenerator.MATERIAL.getRandomColor();
-                item.setmTodoColor(color);
+                item.setTodoColor(color);
                 startAddTodoActivity(item);
 
             }
@@ -247,21 +243,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(resultCode!=RESULT_CANCELED&&requestCode==REQUEST_ID_TODO_ITEM){
             TodoItem item= (TodoItem) data.getSerializableExtra(TODOITEM);
-            if(item.getmToDoText().length()<=0){
+            if(item.getToDoText().length()<=0){
                 return;
             }
 
             boolean existed=false;
 
-            if(item.ismHasReminder()&&item.getmToDoDate()!=null){
+            if(item.getHasReminder()&&item.getToDoDate()!=null){
                 Intent i=new Intent(this,TodoNotificationService.class);
-                i.putExtra(TodoNotificationService.TODOTEXT,item.getmToDoText());
-                i.putExtra(TodoNotificationService.TODOUUID,item.getmTodoIdentifier());
-                createAlarm(i,item.getmTodoIdentifier().hashCode(),item.getmToDoDate().getTime());
+                i.putExtra(TodoNotificationService.TODOTEXT,item.getToDoText());
+                i.putExtra(TodoNotificationService.TODOUUID,item.getTodoIdentifier());
+                createAlarm(i,item.getTodoIdentifier().hashCode(),item.getToDoDate().getTime());
             }
 
             for (int i = 0; i < mToDoItemsArrayList.size(); i++) {
-                if(item.getmTodoIdentifier().equals(mToDoItemsArrayList.get(i).getmTodoIdentifier())){
+                if(item.getTodoIdentifier().equals(mToDoItemsArrayList.get(i).getTodoIdentifier())){
                     mToDoItemsArrayList.set(i,item);
                     existed=true;
                     adapter.notifyDataSetChanged();

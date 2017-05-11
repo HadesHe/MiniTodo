@@ -59,43 +59,43 @@ public class TodoItem implements Serializable{
         this("Clean my room",true,new Date());
     }
 
-    public String getmToDoText() {
+    public String getToDoText() {
         return mToDoText;
     }
 
-    public void setmToDoText(String mToDoText) {
+    public void setToDoText(String mToDoText) {
         this.mToDoText = mToDoText;
     }
 
-    public boolean ismHasReminder() {
+    public boolean getHasReminder() {
         return mHasReminder;
     }
 
-    public void setmHasReminder(boolean mHasReminder) {
+    public void setHasReminder(boolean mHasReminder) {
         this.mHasReminder = mHasReminder;
     }
 
-    public int getmTodoColor() {
+    public int getTodoColor() {
         return mTodoColor;
     }
 
-    public void setmTodoColor(int mTodoColor) {
+    public void setTodoColor(int mTodoColor) {
         this.mTodoColor = mTodoColor;
     }
 
-    public Date getmToDoDate() {
+    public Date getToDoDate() {
         return mToDoDate;
     }
 
-    public void setmToDoDate(Date mToDoDate) {
+    public void setToDoDate(Date mToDoDate) {
         this.mToDoDate = mToDoDate;
     }
 
-    public UUID getmTodoIdentifier() {
+    public UUID getTodoIdentifier() {
         return mTodoIdentifier;
     }
 
-    public void setmTodoIdentifier(UUID mTodoIdentifier) {
+    public void setTodoIdentifier(UUID mTodoIdentifier) {
         this.mTodoIdentifier = mTodoIdentifier;
     }
 }

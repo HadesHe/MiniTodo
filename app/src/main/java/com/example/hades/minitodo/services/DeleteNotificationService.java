@@ -40,7 +40,7 @@ public class DeleteNotificationService extends IntentService {
 
             if(mTodoItems!=null){
                 for (TodoItem item : mTodoItems) {
-                    if(item.getmTodoIdentifier().equals(todoID)){
+                    if(item.getTodoIdentifier().equals(todoID)){
                         mItem=item;
                         break;
                     }

@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,12 +15,10 @@ import android.widget.TextView;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.example.hades.minitodo.R;
-import com.example.hades.minitodo.addtodomodule.AddTodoActivity;
 import com.example.hades.minitodo.beans.TodoItem;
 import com.example.hades.minitodo.services.TodoNotificationService;
 import com.example.hades.minitodo.utils.DateUtil;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -31,7 +28,6 @@ import static com.example.hades.minitodo.mainmodule.MainActivity.DATE_TIME_FORMA
 import static com.example.hades.minitodo.mainmodule.MainActivity.LIGHTTHEME;
 import static com.example.hades.minitodo.mainmodule.MainActivity.THEME_PREFERENCES;
 import static com.example.hades.minitodo.mainmodule.MainActivity.THEME_SAVED;
-import static com.example.hades.minitodo.mainmodule.MainActivity.TODOITEM;
 
 /**
  * Created by Hades on 2017/5/3.
@@ -43,11 +39,11 @@ public class BasicListAdapter extends RecyclerView.Adapter<BasicListAdapter.View
 
     public void onRemove(int justDeletePosition, TodoItem todoItem) {
         mItems.add(justDeletePosition,todoItem);
-        if(todoItem.getmToDoDate()!=null&&todoItem.ismHasReminder()){
+        if(todoItem.getToDoDate()!=null&&todoItem.getHasReminder()){
             Intent i=new Intent(mContext,TodoNotificationService.class);
-            i.putExtra(TodoNotificationService.TODOTEXT,todoItem.getmToDoText());
-            i.putExtra(TodoNotificationService.TODOUUID,todoItem.getmTodoIdentifier());
-            ((MainActivity)mContext).createAlarm(i,todoItem.getmTodoIdentifier().hashCode(),todoItem.getmToDoDate().getTime());
+            i.putExtra(TodoNotificationService.TODOTEXT,todoItem.getToDoText());
+            i.putExtra(TodoNotificationService.TODOUUID,todoItem.getTodoIdentifier());
+            ((MainActivity)mContext).createAlarm(i,todoItem.getTodoIdentifier().hashCode(),todoItem.getToDoDate().getTime());
         }
         notifyItemInserted(justDeletePosition);
     }
@@ -85,14 +81,14 @@ public class BasicListAdapter extends RecyclerView.Adapter<BasicListAdapter.View
             todoTextColor = Color.WHITE;
         }
         holder.linearLayout.setBackgroundColor(bgColor);
-        if (item.ismHasReminder() && item.getmToDoDate() != null) {
+        if (item.getHasReminder() && item.getToDoDate() != null) {
             holder.mTodoTextview.setMaxLines(1);
             holder.mTodoTimeTextview.setVisibility(View.VISIBLE);
         } else {
             holder.mTodoTimeTextview.setVisibility(View.GONE);
             holder.mTodoTextview.setMaxLines(2);
         }
-        holder.mTodoTextview.setText(item.getmToDoText());
+        holder.mTodoTextview.setText(item.getToDoText());
         holder.mTodoTextview.setTextColor(todoTextColor);
 
         TextDrawable myDrawable = TextDrawable.builder().beginConfig()
@@ -100,15 +96,15 @@ public class BasicListAdapter extends RecyclerView.Adapter<BasicListAdapter.View
                 .useFont(Typeface.DEFAULT)
                 .toUpperCase()
                 .endConfig()
-                .buildRound(item.getmToDoText().substring(0, 1), item.getmTodoColor());
+                .buildRound(item.getToDoText().substring(0, 1), item.getTodoColor());
 
         holder.mColorImageView.setImageDrawable(myDrawable);
-        if (item.getmToDoDate() != null) {
+        if (item.getToDoDate() != null) {
             String timeToShow;
             if (android.text.format.DateFormat.is24HourFormat(mContext)) {
-                timeToShow = DateUtil.formatDate(DATE_TIME_FORMAT_24_HOUR, item.getmToDoDate());
+                timeToShow = DateUtil.formatDate(DATE_TIME_FORMAT_24_HOUR, item.getToDoDate());
             } else {
-                timeToShow = DateUtil.formatDate(DATE_TIME_FORMAT_12_HOUR, item.getmToDoDate());
+                timeToShow = DateUtil.formatDate(DATE_TIME_FORMAT_12_HOUR, item.getToDoDate());
             }
             holder.mTodoTimeTextview.setText(timeToShow);
         }
@@ -142,7 +138,7 @@ public class BasicListAdapter extends RecyclerView.Adapter<BasicListAdapter.View
         mJustDeletedTodoItem = mItems.remove(position);
         mIndexOfDeletedTodoItem = position;
         Intent i = new Intent(mContext, TodoNotificationService.class);
-        ((MainActivity)mContext).deleteAlarm(i, mJustDeletedTodoItem.getmTodoIdentifier().hashCode());
+        ((MainActivity)mContext).deleteAlarm(i, mJustDeletedTodoItem.getTodoIdentifier().hashCode());
         notifyItemRemoved(position);
 
 
